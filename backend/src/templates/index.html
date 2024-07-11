@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cantsilence.me Database</title>
+</head>
+
+<body>
+    <h1>cantsilence.me Database</h1>
+    <h2>All users</h2>
+    <table>
+        {% if users %}
+        <tr>
+            <th>ID (fixed)</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <form action="/update_user/{{user.id}}" method="POST">
+                <td>
+                    <p>{{ user.id }}</p>
+                </td>
+                <td>
+                    <input name="first_name" type="text" value="{{user.first_name}}" required>
+                </td>
+                <td>
+                    <input name="last_name" type="text" value="{{user.last_name}}" required>
+                </td>
+                <td>
+                    <input name="email" type="email" value="{{user.email}}" required>
+                </td>
+                <td>
+                    <button type="submit" name="save">Save</button>
+                    <button type="submit" name="delete">X</button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <p>No users found</p>
+        {% endif %}
+        <th>Add user</th>
+        <tr>
+            <form action="/add_user" method="POST">
+                <td>
+                    {% if users %}
+                    <p>{{ users[-1].id + 1 }}</p>
+                    {% else %}
+                    <p>ID</p>
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="text" name="first_name" placeholder="First name" required>
+                </td>
+                <td>
+                    <input type="text" name="last_name" placeholder="Last name" required>
+                </td>
+                <td>
+                    <input type="email" name="email" placeholder="Email" required>
+                </td>
+                <td>
+                    <button type="submit">Add user</button>
+                </td>
+            </form>
+        </tr>
+    </table>
+    <h2>All emails</h2>
+    <table>
+        {% if emails %}
+        <tr>
+            <th>ID (fixed)</th>
+            <th>User ID (fixed)</th>
+            <th>Subject</th>
+            <th>Body</th>
+            <th>Recipients</th>
+            <th>Send time</th>
+            <th>Code</th>
+            <th>Interval</th>
+        </tr>
+        {% for email in emails %}
+        <tr>
+            <form action="/update_email/{{email.id}}" method="POST">
+                <td>
+                    <p>{{ email.id }}</p>
+                </td>
+                <td>
+                    <p>{{ email.user_id }}</p>
+                </td>
+                <td>
+                    <input name="subject" type="text" value="{{email.subject}}" required>
+                </td>
+                <td>
+                    <textarea name="body" type="text" required
+                        style="height: auto; resize: vertical; overflow-y: hidden;" oninput="autoExpand(this)"
+                        onclick="autoExpand(this)">{{email.body}}</textarea>
+                </td>
+                <td>
+                    <input name="recipients" type="text" value="{{email.recipients}}" required>
+                </td>
+                <td>
+                    <input name="send_time" type="datetime-local" value="{{email.send_time}}" required>
+                </td>
+                <td>
+                    <input name="code" type="text" value="{{email.code}}" required>
+                </td>
+                <td>
+                    <input type="text" name="interval" value="{{email.interval}}" required>
+                </td>
+                <td>
+                    <button type="submit" name="save">Save</button>
+                    <button type="submit" name="delete">X</button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <p>No emails found</p>
+        {% endif %}
+        <th>Add email</th>
+        <tr>
+            <form action="/add_email" method="POST">
+                <td>
+                    {% if emails %}
+                    <p>{{ emails[-1].id + 1 }}</p>
+                    {% else %}
+                    <p>ID</p>
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="number" name="user_id" placeholder="User ID" required>
+                </td>
+                <td>
+                    <input type="text" name="subject" placeholder="Subject" required>
+                </td>
+                <td>
+                    <textarea type="text" name="body" placeholder="Body" required
+                        style="height: auto; resize: vertical; overflow-y: hidden;"
+                        oninput="autoExpand(this)"></textarea>
+                </td>
+                <td>
+                    <input type="text" name="recipients" placeholder="Recipients" required>
+                </td>
+                <td>
+                    <input type="datetime-local" name="send_time" required>
+                </td>
+                <td>
+                    <input type="text" name="code" placeholder="Code" required>
+                </td>
+                <td>
+                    <input type="text" name="interval" placeholder="Interval" required>
+                </td>
+                <td>
+                    <button type="submit">Add email</button>
+                </td>
+            </form>
+        </tr>
+    </table>
+</body>
+
+<script>
+    function autoExpand(element) {
+        element.style.height = "auto";
+        element.style.height = (element.scrollHeight) + "px";
+    }
+</script>
+
+</html>
