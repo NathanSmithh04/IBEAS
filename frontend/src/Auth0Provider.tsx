@@ -2,6 +2,8 @@ import React, { useEffect, useState, createContext } from "react";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+
 interface Auth0ContextType {
   token: string | null;
   setToken: (token: string) => void;
@@ -81,7 +83,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     const login = async () => {
       try {
         if (token && user) {
-          await fetch("http://127.0.0.1:5000/login", {
+          await fetch(backendUrl + "/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -100,7 +102,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     const getNames = async () => {
       try {
         if (token && user) {
-          const response = await fetch("http://127.0.0.1:5000/get_user_names", {
+          const response = await fetch(backendUrl + "/get_user_names", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

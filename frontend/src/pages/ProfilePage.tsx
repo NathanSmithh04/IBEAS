@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
 
+const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+
 export default function ProfilePage() {
   interface Email {
     id: number;
@@ -29,7 +31,6 @@ export default function ProfilePage() {
 
   const { user } = useContext(Auth0Context);
   const token = useAuthToken();
-  const API_DOMAIN = "http://127.0.0.1:5000";
   const [emails, setEmails] = useState<Email[]>([]);
   const [emailsCopy, setEmailsCopy] = useState<Email[]>([]);
   const [unlocked, setUnlocked] = useState<boolean>(false);
@@ -105,7 +106,7 @@ export default function ProfilePage() {
     setSavingText("Saving changes...");
     try {
       if (token && user) {
-        const response = await fetch(API_DOMAIN + "/change_email_data", {
+        const response = await fetch(backendUrl + "/change_email_data", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -157,7 +158,7 @@ export default function ProfilePage() {
   async function changeNameApi(newName: string) {
     try {
       if (token && user) {
-        const response = await fetch(API_DOMAIN + "/change_name", {
+        const response = await fetch(backendUrl + "/change_name", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -189,7 +190,7 @@ export default function ProfilePage() {
   async function deleteEmailApi(emailId: number) {
     try {
       if (token && user && code) {
-        const response = await fetch(API_DOMAIN + "/delete_email_data", {
+        const response = await fetch(backendUrl + "/delete_email_data", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -234,7 +235,7 @@ export default function ProfilePage() {
   async function submitCode() {
     try {
       if (token && user && code) {
-        const response = await fetch(API_DOMAIN + "/request_emails", {
+        const response = await fetch(backendUrl + "/request_emails", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -273,7 +274,7 @@ export default function ProfilePage() {
         newEmail &&
         newEmail.code === newEmail.code_confirm
       ) {
-        const response = await fetch(API_DOMAIN + "/add_email_data", {
+        const response = await fetch(backendUrl + "/add_email_data", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
