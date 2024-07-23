@@ -347,7 +347,7 @@ def change_name():
         else:
             return {"error": "Name too long"}
     else:
-        return {"error": "Invalid name"}
+        return {"error": "Invalid name" + str(new_name)}
     return {"error": "Cannot change name" + str(new_name)}
 
 @app.route('/change_email_data', methods=['POST'])
