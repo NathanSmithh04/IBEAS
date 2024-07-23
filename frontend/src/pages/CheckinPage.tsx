@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
 
-const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+// const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 export default function CheckinPage() {
   const { user } = useContext(Auth0Context);
