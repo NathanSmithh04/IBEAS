@@ -343,11 +343,17 @@ def change_name():
                         user.last_name = last_name
                         db.session.commit()
                         return {"first_name": first_name, "last_name": last_name}
+                    else:
+                        return {"error": "User not found"}
+                else:
+                    return {"error": "Email not found"}
+            else:
+                return {"error": "payload error: " + str(payload)}
         else:
             return {"error": "Name too long"}
     else:
-        return {"error": "Invalid name"}
-    return {"error": "Cannot change name"}
+        return {"error": "Invalid name" + str(new_name)}
+    return {"error": "Cannot change name" + str(new_name)}
 
 @app.route('/change_email_data', methods=['POST'])
 @token_required
