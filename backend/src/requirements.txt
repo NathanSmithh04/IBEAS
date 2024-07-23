@@ -37,13 +37,11 @@ psycopg2==2.9.9
 pyasn1==0.6.0
 pycparser==2.22
 PyJWT==2.8.0
-pypiwin32==223
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-jose==3.3.0
 pytz==2024.1
-pywin32==304
 requests==2.26.0
 requests-file==2.1.0
 rsa==4.9
