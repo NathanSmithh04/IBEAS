@@ -329,7 +329,6 @@ def request_emails():
 def change_name():
     data = request.get_json()
     new_name = data['new_name'].split()
-    new_name = unlistify(new_name)
     if len(new_name) == 2:
         first_name, last_name = new_name
         if len(first_name) <= USER_FIRST_NAME_MAX_LENGTH and len(last_name) <= USER_LAST_NAME_MAX_LENGTH:
@@ -347,8 +346,8 @@ def change_name():
         else:
             return {"error": "Name too long"}
     else:
-        return {"error": "Invalid name" + str(new_name)}
-    return {"error": "Cannot change name" + str(new_name)}
+        return {"error": "Invalid name"}
+    return {"error": "Cannot change name"}
 
 @app.route('/change_email_data', methods=['POST'])
 @token_required
@@ -464,9 +463,6 @@ def delete_email_data():
                         unschedule_email_interval(email.id)
                         return {"success": "Email deleted"}
     return {"error": "Cannot delete email data"}
-
-def unlistify(data):
-    return ' '.join(data)
 
 def is_valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
