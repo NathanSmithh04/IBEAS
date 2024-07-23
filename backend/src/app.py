@@ -17,7 +17,7 @@ load_dotenv()
 scheduler = BackgroundScheduler()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ibeas.onrender.com"}})
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
