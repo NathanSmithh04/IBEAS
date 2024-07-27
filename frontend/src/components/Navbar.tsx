@@ -9,7 +9,7 @@ function Navbar() {
   const [isAuthenticatedLocal, setIsAuthenticatedLocal] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
-  const [showServerWarning, setShowServerWarning] = useState(false);
+  const [showServerWarning, setShowServerWarning] = useState<boolean>();
 
   useEffect(() => {
     if (!isLoading) {
@@ -18,8 +18,14 @@ function Navbar() {
   }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
-    setShowServerWarning(localStorage.getItem("showServerWarning") === "true");
-    console.log("showServerWarning", showServerWarning);
+    setShowServerWarning(
+      localStorage.getItem("showServerWarning") === "true" ? true : false
+    );
+    console.log(
+      "showServerWarning",
+      showServerWarning,
+      localStorage.getItem("showServerWarning")
+    );
   });
 
   return (
