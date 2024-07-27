@@ -7,15 +7,11 @@ const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 interface Auth0ContextType {
   token: string | null;
   setToken: (token: string) => void;
-  showServerWarning: boolean;
-  setShowServerWarning: (showServerWarning: boolean) => void;
 }
 
 export const Auth0Context = createContext<Auth0ContextType>({
   token: null,
   setToken: () => {},
-  showServerWarning: true,
-  setShowServerWarning: () => {},
 });
 
 export function useAuthToken() {
@@ -142,9 +138,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
   ]);
 
   return (
-    <Auth0Context.Provider
-      value={{ token, setToken, showServerWarning, setShowServerWarning }}
-    >
+    <Auth0Context.Provider value={{ token, setToken }}>
       {children}
     </Auth0Context.Provider>
   );
