@@ -54,7 +54,6 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     useAuth0();
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const [showServerWarning, setShowServerWarning] = useState(true);
 
   useEffect(() => {
     const checkAuthentication = async () => {
