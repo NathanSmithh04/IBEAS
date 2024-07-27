@@ -15,16 +15,12 @@ function Navbar() {
     if (!isLoading) {
       setIsAuthenticatedLocal(isAuthenticated);
     }
+    console.log("isAuthenticatedLocal", isAuthenticatedLocal);
   }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     setShowServerWarning(
       localStorage.getItem("showServerWarning") === "true" ? true : false
-    );
-    console.log(
-      "showServerWarning",
-      showServerWarning,
-      localStorage.getItem("showServerWarning")
     );
   });
 

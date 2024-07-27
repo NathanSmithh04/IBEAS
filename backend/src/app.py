@@ -470,6 +470,10 @@ def delete_email_data():
                         return {"success": "Email deleted"}
     return {"error": "Cannot delete email data"}
 
+@app.route('/check_connection', methods=['GET'])
+def check_connection():
+    return {"success": "Connection successful"}
+
 def is_valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 

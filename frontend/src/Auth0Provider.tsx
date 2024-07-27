@@ -7,11 +7,15 @@ const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 interface Auth0ContextType {
   token: string | null;
   setToken: (token: string) => void;
+  showServerWarning: boolean;
+  setShowServerWarning: (showServerWarning: boolean) => void;
 }
 
 export const Auth0Context = createContext<Auth0ContextType>({
   token: null,
   setToken: () => {},
+  showServerWarning: true,
+  setShowServerWarning: () => {},
 });
 
 export function useAuthToken() {
@@ -54,6 +58,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     useAuth0();
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [showServerWarning, setShowServerWarning] = useState(true);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -80,18 +85,10 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    const login = async (): Promise<void> => {
+    const login = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
         if (token && user) {
-          const timeoutPromise = new Promise<void>((_, reject) => {
-            setTimeout(() => {
-              localStorage.setItem("showServerWarning", "true");
-              reject(new Error("Request timed out"));
-            }, 5000);
-          });
-          const fetchPromise = fetch(`${backendUrl}/login`, {
+          const response = await fetch(backendUrl + "/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -101,13 +98,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
               email: user.email,
             }),
           });
-          const response = (await Promise.race([
-            fetchPromise,
-            timeoutPromise,
-          ])) as Response;
-
           if (response.ok) {
-            localStorage.setItem("showServerWarning", "false");
             const data = await response.json();
             if (data.first_name && data.last_name && data.email) {
             }
@@ -151,7 +142,9 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
   ]);
 
   return (
-    <Auth0Context.Provider value={{ token, setToken }}>
+    <Auth0Context.Provider
+      value={{ token, setToken, showServerWarning, setShowServerWarning }}
+    >
       {children}
     </Auth0Context.Provider>
   );
