@@ -19,6 +19,7 @@ function Navbar() {
 
   useEffect(() => {
     setShowServerWarning(localStorage.getItem("showServerWarning") === "true");
+    console.log("showServerWarning", showServerWarning);
   });
 
   return (
