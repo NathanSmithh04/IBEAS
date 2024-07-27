@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext } from "react";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -18,29 +18,6 @@ export function useAuthToken() {
   const { token } = React.useContext(Auth0Context);
   return token;
 }
-
-interface ShowServerWarningContextType {
-  showServerWarning: boolean;
-  setShowServerWarning: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export const ShowServerWarningContext = createContext<
-  ShowServerWarningContextType | undefined
->(undefined);
-
-export const ShowServerWarningProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [showServerWarning, setShowServerWarning] = useState(true);
-
-  return (
-    <ShowServerWarningContext.Provider
-      value={{ showServerWarning, setShowServerWarning }}
-    >
-      {children}
-    </ShowServerWarningContext.Provider>
-  );
-};
 
 export default function Auth0ProviderWithHistory({
   children,
@@ -67,9 +44,7 @@ export default function Auth0ProviderWithHistory({
       }}
       onRedirectCallback={onRedirectCallback}
     >
-      <FetchToken>
-        <ShowServerWarningProvider>{children}</ShowServerWarningProvider>
-      </FetchToken>
+      <FetchToken>{children}</FetchToken>
     </Auth0Provider>
   );
 }
@@ -79,8 +54,6 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     useAuth0();
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const showServerWarningContext = useContext(ShowServerWarningContext);
-  const setShowServerWarning = showServerWarningContext?.setShowServerWarning;
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -107,10 +80,18 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    const login = async () => {
+    const login = async (): Promise<void> => {
       try {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
         if (token && user) {
-          const response = await fetch(backendUrl + "/login", {
+          const timeoutPromise = new Promise<void>((_, reject) => {
+            setTimeout(() => {
+              localStorage.setItem("showServerWarning", "true");
+              reject(new Error("Request timed out"));
+            }, 5000);
+          });
+          const fetchPromise = fetch(`${backendUrl}/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -120,13 +101,13 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
               email: user.email,
             }),
           });
+          const response = (await Promise.race([
+            fetchPromise,
+            timeoutPromise,
+          ])) as Response;
+
           if (response.ok) {
-            if (setShowServerWarning) {
-              setShowServerWarning(false);
-              console.log("Server warning hidden");
-            } else {
-              console.log("setShowServerWarning is not defined");
-            }
+            localStorage.setItem("showServerWarning", "false");
             const data = await response.json();
             if (data.first_name && data.last_name && data.email) {
             }

@@ -1,6 +1,5 @@
 import { Auth0Context } from "@auth0/auth0-react";
 import { useContext, useEffect, useState } from "react";
-import { ShowServerWarningContext } from "../Auth0Provider";
 
 import "../index.css";
 
@@ -10,15 +9,17 @@ function Navbar() {
   const [isAuthenticatedLocal, setIsAuthenticatedLocal] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
-  const showServerWarning = useContext(
-    ShowServerWarningContext
-  )?.showServerWarning;
+  const [showServerWarning, setShowServerWarning] = useState(false);
 
   useEffect(() => {
     if (!isLoading) {
       setIsAuthenticatedLocal(isAuthenticated);
     }
   }, [isLoading, isAuthenticated]);
+
+  useEffect(() => {
+    setShowServerWarning(localStorage.getItem("showServerWarning") === "true");
+  });
 
   return (
     <nav>
