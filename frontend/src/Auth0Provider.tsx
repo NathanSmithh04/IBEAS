@@ -7,15 +7,20 @@ const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 interface Auth0ContextType {
   token: string | null;
   setToken: (token: string) => void;
+  showServerWarning: boolean;
+  setShowServerWarning: (showServerWarning: boolean) => void;
 }
 
 export const Auth0Context = createContext<Auth0ContextType>({
   token: null,
   setToken: () => {},
+  showServerWarning: true,
+  setShowServerWarning: () => {},
 });
 
 export function useAuthToken() {
   const { token } = React.useContext(Auth0Context);
+  const [showServerWarning, setShowServerWarning] = useState(true);
   return token;
 }
 
@@ -54,6 +59,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     useAuth0();
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [showServerWarning, setShowServerWarning] = useState(true);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -83,7 +89,7 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
     const login = async () => {
       try {
         if (token && user) {
-          await fetch(backendUrl + "/login", {
+          const response = await fetch(backendUrl + "/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -93,6 +99,11 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
               email: user.email,
             }),
           });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.first_name && data.last_name && data.email) {
+            }
+          }
         }
       } catch (error) {
         console.error(error);
@@ -132,7 +143,9 @@ export function FetchToken({ children }: { children: React.ReactNode }) {
   ]);
 
   return (
-    <Auth0Context.Provider value={{ token, setToken }}>
+    <Auth0Context.Provider
+      value={{ token, setToken, showServerWarning, setShowServerWarning }}
+    >
       {children}
     </Auth0Context.Provider>
   );

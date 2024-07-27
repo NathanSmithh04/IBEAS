@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { useEffect, useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
+import { DateTime } from "luxon";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
@@ -16,6 +17,7 @@ export default function ProfilePage() {
     code?: string;
     interval?: string;
     interval_next_send?: string;
+    timezone?: string;
     [key: string]: any;
   }
 
@@ -174,10 +176,6 @@ export default function ProfilePage() {
           } else {
             localStorage.setItem("userFirstName", data.first_name);
             localStorage.setItem("userLastName", data.last_name);
-            // setUserInfo({
-            //   first_name: data.first_name,
-            //   last_name: data.last_name,
-            // });
             alert("Name changed successfully.");
           }
         }
@@ -380,6 +378,15 @@ export default function ProfilePage() {
       }
     }
     return true;
+  }
+
+  function convertTimezone(datetime: string, timezone: string): string {
+    const oregonTimezone = "America/Los_Angeles";
+    const oregonDateTime = DateTime.fromISO(datetime, {
+      zone: oregonTimezone,
+    });
+    const targetDateTime = oregonDateTime.setZone(timezone);
+    return targetDateTime.toISO() as string;
   }
 
   return (
@@ -719,7 +726,11 @@ export default function ProfilePage() {
                         &#128712;
                       </p>
                       <p className="ml-1">
-                        Next trigger:&nbsp;{emailCopy.interval_next_send}
+                        Next trigger:&nbsp;
+                        {convertTimezone(
+                          emailCopy.interval_next_send,
+                          emailCopy.timezone
+                        )}
                       </p>
                       <button
                         type="button"

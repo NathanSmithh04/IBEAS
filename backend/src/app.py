@@ -49,6 +49,7 @@ EMAILS_RECIPIENTS_MAX_LENGTH = 1000
 EMAILS_SEND_TIME_MAX_LENGTH = 100
 EMAILS_CODE_MAX_LENGTH = 100
 EMAILS_INTERVAL_MAX_LENGTH = 100
+EMAILS_TIMEZONE_MAX_LENGTH = 100
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -71,8 +72,9 @@ class Emails(db.Model):
     code = db.Column(db.String(EMAILS_CODE_MAX_LENGTH))
     interval = db.Column(db.String(EMAILS_INTERVAL_MAX_LENGTH))
     last_checkin = db.Column(db.DateTime)
+    timezone = db.Column(db.String(EMAILS_TIMEZONE_MAX_LENGTH))
 
-    def __init__(self, user_id, subject, body, recipients, send_time, code, interval, last_checkin):
+    def __init__(self, user_id, subject, body, recipients, send_time, code, interval, last_checkin, timezone):
         self.user_id = user_id
         self.subject = subject
         self.body = body
@@ -81,6 +83,7 @@ class Emails(db.Model):
         self.code = code
         self.interval = interval
         self.last_checkin = last_checkin
+        self.timezone = timezone
 
 def check_auth(token): # Auth0 token verification
     try:
@@ -156,116 +159,116 @@ def token_required(f): # API route protection
 
     return decorated
 
-def admin_protection(f): # Basic admin protection
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if request.remote_addr != '127.0.0.1':
-            abort(403)
-        else:
-            return f(*args, **kwargs)
-    return decorated
+# def admin_protection(f): # Basic admin protection
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         if request.remote_addr != '127.0.0.1':
+#             abort(403)
+#         else:
+#             return f(*args, **kwargs)
+#     return decorated
 
-@app.route('/', methods=['GET'])
-@admin_protection
-def index():
-    users = User.query.order_by(User.id).all()
-    emails = Emails.query.order_by(Emails.id).all()
-    return render_template('index.html', users=users, emails=emails)
+# @app.route('/', methods=['GET'])
+# @admin_protection
+# def index():
+#     users = User.query.order_by(User.id).all()
+#     emails = Emails.query.order_by(Emails.id).all()
+#     return render_template('index.html', users=users, emails=emails)
 
-@app.route('/add_user', methods=['POST'])
-@admin_protection
-def add_user():
-    if request.method == 'POST':
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        email = request.form['email']
-        user = User(first_name, last_name, email)
-        db.session.add(user)
-        if first_name and last_name and email:
-            if is_valid_email(email):
-                db.session.commit()
-            else:
-                return "Invalid email"
-        else:
-            return "All fields are required"
-    return redirect('/')
+# @app.route('/add_user', methods=['POST'])
+# @admin_protection
+# def add_user():
+#     if request.method == 'POST':
+#         first_name = request.form['first_name']
+#         last_name = request.form['last_name']
+#         email = request.form['email']
+#         user = User(first_name, last_name, email)
+#         db.session.add(user)
+#         if first_name and last_name and email:
+#             if is_valid_email(email):
+#                 db.session.commit()
+#             else:
+#                 return "Invalid email"
+#         else:
+#             return "All fields are required"
+#     return redirect('/')
 
-@app.route('/add_email', methods=['POST'])
-@admin_protection
-def add_email():
-    if request.method == 'POST':
-        user_id = request.form['user_id']
-        if user_id not in [str(user.id) for user in User.query.all()]:
-            return "Invalid user id"
-        subject = request.form['subject']
-        body = request.form['body']
-        recipients = request.form['recipients']
-        send_time = request.form['send_time']
-        code = request.form['code']
-        interval = request.form['interval']
-        last_checkin = datetime.now()
-        print(send_time)
-        email = Emails(user_id, subject, body, recipients, send_time, code, interval, last_checkin)
-        db.session.add(email)
-        db.session.commit()
-        schedule_email_send_time(email)
-        schedule_email_interval(email)
-    return redirect('/')
+# @app.route('/add_email', methods=['POST'])
+# @admin_protection
+# def add_email():
+#     if request.method == 'POST':
+#         user_id = request.form['user_id']
+#         if user_id not in [str(user.id) for user in User.query.all()]:
+#             return "Invalid user id"
+#         subject = request.form['subject']
+#         body = request.form['body']
+#         recipients = request.form['recipients']
+#         send_time = request.form['send_time']
+#         code = request.form['code']
+#         interval = request.form['interval']
+#         last_checkin = datetime.now()
+#         print(send_time)
+#         email = Emails(user_id, subject, body, recipients, send_time, code, interval, last_checkin)
+#         db.session.add(email)
+#         db.session.commit()
+#         schedule_email_send_time(email)
+#         schedule_email_interval(email)
+#     return redirect('/')
 
-@app.route('/update_user/<int:id>', methods=['POST'])
-@admin_protection
-def update_user(id):
-    user = db.session.get(User, id)
-    if 'delete' in request.form:
-        db.session.delete(user)
-        db.session.commit()
-    elif 'save' in request.form:
-        first_name = request.form['first_name'].strip()
-        last_name = request.form['last_name'].strip()
-        email = request.form['email'].strip()
-        if first_name and last_name and email:
-            if is_valid_email(email):
-                user.first_name = first_name
-                user.last_name = last_name
-                user.email = email
-                db.session.commit()
-            else:
-                return "Invalid email"
-        else:
-            return "All fields are required"
-    return redirect('/')
+# @app.route('/update_user/<int:id>', methods=['POST'])
+# @admin_protection
+# def update_user(id):
+#     user = db.session.get(User, id)
+#     if 'delete' in request.form:
+#         db.session.delete(user)
+#         db.session.commit()
+#     elif 'save' in request.form:
+#         first_name = request.form['first_name'].strip()
+#         last_name = request.form['last_name'].strip()
+#         email = request.form['email'].strip()
+#         if first_name and last_name and email:
+#             if is_valid_email(email):
+#                 user.first_name = first_name
+#                 user.last_name = last_name
+#                 user.email = email
+#                 db.session.commit()
+#             else:
+#                 return "Invalid email"
+#         else:
+#             return "All fields are required"
+#     return redirect('/')
 
-@app.route('/update_email/<int:id>', methods=['POST'])
-@admin_protection
-def update_email(id):
-    email = db.session.get(Emails, id)
-    if 'delete' in request.form:
-        db.session.delete(email)
-        db.session.commit()
-    elif 'save' in request.form:
-        old_send_time = email.send_time
-        old_interval = email.interval
-        subject = request.form['subject']
-        body = request.form['body']
-        recipients = request.form['recipients']
-        send_time = request.form['send_time']
-        code = request.form['code']
-        interval = request.form['interval']
-        if subject and body and recipients and send_time and code and interval:
-            email.subject = subject
-            email.body = body
-            email.recipients = recipients
-            email.send_time = send_time
-            email.code = code
-            email.interval = interval
-            db.session.commit()
-            if old_send_time != send_time:
-                reschedule_email_send_time(email)
-            if old_interval != interval:
-                reschedule_email_interval(email)
-        else:
-            return "All fields are required"
-    return redirect('/')
+# @app.route('/update_email/<int:id>', methods=['POST'])
+# @admin_protection
+# def update_email(id):
+#     email = db.session.get(Emails, id)
+#     if 'delete' in request.form:
+#         db.session.delete(email)
+#         db.session.commit()
+#     elif 'save' in request.form:
+#         old_send_time = email.send_time
+#         old_interval = email.interval
+#         subject = request.form['subject']
+#         body = request.form['body']
+#         recipients = request.form['recipients']
+#         send_time = request.form['send_time']
+#         code = request.form['code']
+#         interval = request.form['interval']
+#         if subject and body and recipients and send_time and code and interval:
+#             email.subject = subject
+#             email.body = body
+#             email.recipients = recipients
+#             email.send_time = send_time
+#             email.code = code
+#             email.interval = interval
+#             db.session.commit()
+#             if old_send_time != send_time:
+#                 reschedule_email_send_time(email)
+#             if old_interval != interval:
+#                 reschedule_email_interval(email)
+#         else:
+#             return "All fields are required"
+#     return redirect('/')
 
 @app.route('/login', methods=['POST'])
 @token_required
@@ -319,7 +322,7 @@ def request_emails():
                     code = data["code"]
                     emails = Emails.query.filter_by(user_id=user.id, code=code).all()
                     if emails:
-                        return {"emails": [{"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, "interval_next_send": parse_interval(email)} for email in emails]}
+                        return {"emails": [{"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, "interval_next_send": parse_interval(email), "timezone": timezone} for email in emails]}
                     else:
                         return {"error": "Incorrect code or no emails found"}
     return {"error": "Cannot get emails"}
@@ -374,7 +377,7 @@ def change_email_data():
                             elif key == 'recipients':
                                 if not is_valid_recipients(value):
                                     return {"error": "Invalid recipients in one or more emails"}
-                            if (key == 'subject' and len(value) > EMAILS_SUBJECT_MAX_LENGTH) or (key == 'body' and len(value) > EMAILS_BODY_MAX_LENGTH) or (key == 'recipients' and len(value) > EMAILS_RECIPIENTS_MAX_LENGTH) or (key == 'send_time' and len(value) > EMAILS_SEND_TIME_MAX_LENGTH) or (key == 'interval' and len(value) > EMAILS_INTERVAL_MAX_LENGTH):
+                            if (key == 'subject' and len(value) > EMAILS_SUBJECT_MAX_LENGTH) or (key == 'body' and len(value) > EMAILS_BODY_MAX_LENGTH) or (key == 'recipients' and len(value) > EMAILS_RECIPIENTS_MAX_LENGTH) or (key == 'send_time' and len(value) > EMAILS_SEND_TIME_MAX_LENGTH) or (key == 'interval' and len(value) > EMAILS_INTERVAL_MAX_LENGTH) or (key == 'timezone' and len(value) > EMAILS_TIMEZONE_MAX_LENGTH):
                                 return {"error": "One or more values are too long"}
                     return_info = []
                     for changes in changes_list:
@@ -396,6 +399,8 @@ def change_email_data():
                                     elif key == 'interval':
                                         email.interval = value
                                         return_info.append({"id": email.id, "interval_next_send": parse_interval(email)})
+                                    elif key == 'timezone':
+                                        email.timezone = value
                                 db.session.commit()
                                 if old_send_time != email.send_time:
                                     reschedule_email_send_time(email)
@@ -422,19 +427,20 @@ def add_email_data():
                 code = data.get('code')
                 interval = data.get('interval')
                 last_checkin = datetime.now()
+                timezone = data.get('timezone')
                 if send_time:
                     if not is_valid_send_time(send_time):
                         return {"error": "Invalid send time"}
                 if not is_valid_interval(interval):
                     return {"error": "Invalid interval"}
-                if subject and body and recipients and code and interval:
-                    if len(subject) <= EMAILS_SUBJECT_MAX_LENGTH and len(body) <= EMAILS_BODY_MAX_LENGTH and len(recipients) <= EMAILS_RECIPIENTS_MAX_LENGTH and len(str(send_time)) <= EMAILS_SEND_TIME_MAX_LENGTH and len(code) <= EMAILS_CODE_MAX_LENGTH and len(interval) <= EMAILS_INTERVAL_MAX_LENGTH:
-                        email = Emails(user.id, subject, body, recipients, send_time, code, interval, last_checkin)
+                if subject and body and recipients and code and interval and timezone:
+                    if len(subject) <= EMAILS_SUBJECT_MAX_LENGTH and len(body) <= EMAILS_BODY_MAX_LENGTH and len(recipients) <= EMAILS_RECIPIENTS_MAX_LENGTH and len(str(send_time)) <= EMAILS_SEND_TIME_MAX_LENGTH and len(code) <= EMAILS_CODE_MAX_LENGTH and len(interval) <= EMAILS_INTERVAL_MAX_LENGTH and len(timezone) <= EMAILS_TIMEZONE_MAX_LENGTH:
+                        email = Emails(user.id, subject, body, recipients, send_time, code, interval, last_checkin, timezone)
                         db.session.add(email)
                         db.session.commit()
                         schedule_email_send_time(email)
                         schedule_email_interval(email)
-                        return {"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval}
+                        return {"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, timezone: email.timezone}
                     else:
                         return {"error": "One or more values are too long"}
                 else:

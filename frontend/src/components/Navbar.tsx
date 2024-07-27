@@ -1,5 +1,6 @@
 import { Auth0Context } from "@auth0/auth0-react";
 import { useContext, useEffect, useState } from "react";
+
 import "../index.css";
 
 function Navbar() {
