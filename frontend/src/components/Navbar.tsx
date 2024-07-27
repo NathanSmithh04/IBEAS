@@ -1,7 +1,8 @@
 import { Auth0Context } from "@auth0/auth0-react";
 import { useContext, useEffect, useState } from "react";
-
 import "../index.css";
+
+const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 function Navbar() {
   const { loginWithRedirect, logout, isLoading, isAuthenticated } =
@@ -9,20 +10,38 @@ function Navbar() {
   const [isAuthenticatedLocal, setIsAuthenticatedLocal] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
-  const [showServerWarning, setShowServerWarning] = useState<boolean>();
+  const [showServerWarning, setShowServerWarning] = useState(false);
 
   useEffect(() => {
     if (!isLoading) {
       setIsAuthenticatedLocal(isAuthenticated);
     }
-    console.log("isAuthenticatedLocal", isAuthenticatedLocal);
+    checkConnectionApi();
   }, [isLoading, isAuthenticated]);
 
-  useEffect(() => {
-    setShowServerWarning(
-      localStorage.getItem("showServerWarning") === "true" ? true : false
-    );
-  });
+  const checkConnectionApi = async () => {
+    const fetchApi = async () => {
+      try {
+        const response = await fetch(backendUrl + "/check_connection");
+        if (response.ok) {
+          return true;
+        }
+      } catch (error) {}
+      return false;
+    };
+    const initialResponse = await fetchApi();
+    if (initialResponse) return;
+    setTimeout(async () => {
+      setShowServerWarning(true);
+      const interval = setInterval(async () => {
+        const response = await fetchApi();
+        if (response) {
+          clearInterval(interval);
+          setShowServerWarning(false);
+        }
+      }, 1000);
+    }, 5000);
+  };
 
   return (
     <nav>
