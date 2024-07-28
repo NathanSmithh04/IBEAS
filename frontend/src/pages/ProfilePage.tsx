@@ -389,9 +389,13 @@ export default function ProfilePage() {
 
   function convertTimezone(datetime: string, timezone: string): string {
     const oregonTimezone = "America/Los_Angeles";
-    const oregonDateTime = DateTime.fromISO(datetime, {
-      zone: oregonTimezone,
-    });
+    const oregonDateTime = DateTime.fromFormat(
+      datetime,
+      "yyyy-MM-dd HH:mm:ss",
+      {
+        zone: oregonTimezone,
+      }
+    );
     const targetDateTime = oregonDateTime.setZone(timezone);
     console.log(targetDateTime.toISO());
     console.log(datetime);
