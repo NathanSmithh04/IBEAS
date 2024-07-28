@@ -286,7 +286,7 @@ export default function ProfilePage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ ...newEmail, userTimezone }),
+          body: JSON.stringify({ ...newEmail, timezone: userTimezone }),
         });
         if (response.ok) {
           var data = await response.json();
