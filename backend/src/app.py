@@ -22,6 +22,7 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+server_timezone = os.getenv('SERVER_TIMEZONE')
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 oauth = OAuth(app)
@@ -522,6 +523,9 @@ def is_valid_recipients(recipients):
         if not is_valid_email(email):
             return False
     return True
+
+def convert_timezone(time):
+    return time.astimezone(pytz.timezone(server_timezone))
 
 def parse_interval(email):
     duration_str = email.interval
