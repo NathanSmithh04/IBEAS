@@ -555,10 +555,6 @@ def parse_interval(email):
     )
     new_datetime = new_datetime.astimezone(pytz.timezone(email.timezone))
     formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
-    print(formatted_datetime)
-    print(last_checkin)
-    print(new_datetime)
-    print(datetime.now(pytz.timezone(email.timezone)))
     return formatted_datetime
 
 def send_email(email_id):
