@@ -22,7 +22,6 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-server_timezone = os.getenv('SERVER_TIMEZONE')
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 oauth = OAuth(app)
@@ -431,8 +430,8 @@ def add_email_data():
                 send_time = data.get('send_time')
                 code = data.get('code')
                 interval = data.get('interval')
-                last_checkin = datetime.now()
                 timezone = data.get('timezone')
+                last_checkin = datetime.now(pytz.timezone(timezone))
                 if send_time:
                     if not is_valid_send_time(send_time):
                         return {"error": "Invalid send time"}
@@ -525,13 +524,8 @@ def is_valid_recipients(recipients):
 def parse_interval(email):
     duration_str = email.interval
     last_checkin = email.last_checkin
-    client_timezone = email.timezone
     if not is_valid_interval(duration_str):
         return None
-    server_tz = pytz.timezone(server_timezone)
-    client_tz = pytz.timezone(client_timezone)
-    last_checkin = server_tz.localize(last_checkin)
-    last_checkin_client_tz = last_checkin.astimezone(client_tz)
     parts = re.findall(r'(\d+)([YyMmDdHh])', duration_str)
     kwargs = {
         'years': 0,
@@ -552,15 +546,14 @@ def parse_interval(email):
             kwargs['hours'] = num
         elif unit == 'M':
             kwargs['months'] = num
-    new_datetime_client_tz = last_checkin_client_tz + relativedelta(
+    new_datetime = last_checkin + relativedelta(
         years=kwargs['years'],
         months=kwargs['months'],
         days=kwargs['days'],
         hours=kwargs['hours'],
         minutes=kwargs['minutes']
     )
-    new_datetime_server_tz = new_datetime_client_tz.astimezone(server_tz)
-    formatted_datetime = new_datetime_server_tz.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
     return formatted_datetime
 
 def send_email(email_id):
@@ -575,13 +568,15 @@ def schedule_email_send_time(email):
     try:
         if email.send_time:
             send_time = datetime.fromisoformat(email.send_time)
-            current_time = datetime.now()
+            pytztimezone = pytz.timezone(email.timezone)
+            current_time = datetime.now(pytztimezone)
             if send_time > current_time:
                 scheduler.add_job(
                     send_email,
                     DateTrigger(run_date=send_time),
                     args=[email.id],
-                    id=str(email.id)
+                    id=str(email.id),
+                    timezone=pytztimezone
                 )
                 print(f"[SEND TIME] Scheduled email {email.id} for {send_time}")
             else:
@@ -595,12 +590,14 @@ def schedule_email_interval(email):
     try:
         if email.interval:
             interval = parse_interval(email)
+            pytztimezone = pytz.timezone(email.timezone)
             if interval:
                 scheduler.add_job(
                     send_email,
                     DateTrigger(run_date=interval),
                     args=[email.id],
-                    id=str(str(email.id) + "_interval")
+                    id=str(str(email.id) + "_interval"),
+                    timezone=pytztimezone
                 )
                 print(f"[INTERVAL] Scheduled email {email.id} for {interval}")
             else:
@@ -647,7 +644,7 @@ def reschedule_email_send_time(email):
         unschedule_email_send_time(email.id)
 
 def checkin(email):
-    email.last_checkin = datetime.now()
+    email.last_checkin = datetime.now(pytz.timezone(email.timezone))
     db.session.commit()
     reschedule_email_interval(email)
 

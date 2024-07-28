@@ -309,6 +309,10 @@ export default function ProfilePage() {
               code_confirm: "",
               interval: "",
             });
+            setCheckboxes({
+              ...checkboxes,
+              "new-email-checkbox": false,
+            });
             alert("Email added successfully.");
           }
         }
