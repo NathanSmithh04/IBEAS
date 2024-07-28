@@ -448,7 +448,7 @@ def add_email_data():
                         db.session.commit()
                         schedule_email_send_time(email)
                         schedule_email_interval(email)
-                        return {"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, timezone: email.timezone}
+                        return {"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, "timezone": email.timezone, "interval_next_send": parse_interval(email)}
                     else:
                         return {"error": "One or more values are too long"}
                 else:
@@ -526,6 +526,7 @@ def is_valid_recipients(recipients):
 def parse_interval(email):
     duration_str = email.interval
     last_checkin = email.last_checkin
+    timezone = email.timezone
     if is_valid_interval(duration_str):
         pass
     else:
@@ -550,6 +551,8 @@ def parse_interval(email):
             kwargs['hours'] = num
         elif unit == 'M':
             kwargs['months'] = num
+    server_timezone = pytz.timezone('America/Los_Angeles')
+    last_checkin = server_timezone.localize(last_checkin)
     new_datetime = last_checkin + relativedelta(
         years=kwargs['years'],
         months=kwargs['months'],
@@ -557,6 +560,8 @@ def parse_interval(email):
         hours=kwargs['hours'],
         minutes=kwargs['minutes']
     )
+    target_timezone = pytz.timezone(timezone)
+    new_datetime = new_datetime.astimezone(target_timezone)
     formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
     return formatted_datetime
 

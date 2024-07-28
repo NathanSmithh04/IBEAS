@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
 import moment from "moment-timezone";
+import { parse } from "date-fns";
+import { format, toZonedTime } from "date-fns-tz";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
@@ -387,30 +389,32 @@ export default function ProfilePage() {
     return true;
   }
 
-  // function convertTimezone(datetime: string, timezone: string): string {
-  //   const targetDateTime = toZonedTime(
-  //     parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date()),
-  //     timezone
-  //   );
-  //   const hours = targetDateTime.getHours();
-  //   let formattedDate;
-  //   if (hours === 1) {
-  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' 00:mm (h:mm a)", {
-  //       timeZone: timezone,
-  //     });
-  //   } else if (hours >= 13) {
-  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' HH:mm (h:mm a)", {
-  //       timeZone: timezone,
-  //     });
-  //   } else {
-  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' hh:mm a", {
-  //       timeZone: timezone,
-  //     });
-  //   }
-  //   return formattedDate;
-  // }
-
-  // console.log(convertTimezone("2022-01-01 01:00:00", "America/New_York"));
+  function formatTime(
+    datetime: string,
+    fromTimezone?: string,
+    toTimezone?: string
+  ): string {
+    let targetDateTime;
+    if (fromTimezone && toTimezone) {
+      const zonedDateTime = toZonedTime(
+        parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date()),
+        fromTimezone
+      );
+      targetDateTime = toZonedTime(zonedDateTime, toTimezone);
+    } else {
+      targetDateTime = parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date());
+    }
+    const hours = targetDateTime.getHours();
+    let formattedDate;
+    if (hours === 0) {
+      formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' 00:mm (h:mm a)");
+    } else if (hours >= 13) {
+      formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' HH:mm (h:mm a)");
+    } else {
+      formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' hh:mm a");
+    }
+    return formattedDate;
+  }
 
   const timezones = moment.tz
     .names()
@@ -763,15 +767,15 @@ export default function ProfilePage() {
                       </p>
                       <p className="ml-1">
                         Next trigger:&nbsp;
-                        {emailCopy.interval_next_send}
+                        {formatTime(emailCopy.interval_next_send)}&nbsp;
+                        {emailCopy.timezone}&nbsp;&harr;&nbsp;
+                        {formatTime(
+                          emailCopy.interval_next_send,
+                          emailCopy.timezone,
+                          userTimezone
+                        )}
+                        &nbsp;{userTimezone}
                       </p>
-                      <button
-                        type="button"
-                        className="ml-auto mr-1"
-                        onClick={() => deleteEmail(emailCopy.id)}
-                      >
-                        Delete email
-                      </button>
                     </div>
                     <div className="mb-1 form-row">
                       <p className="label">Timezone:</p>
@@ -787,6 +791,13 @@ export default function ProfilePage() {
                           </option>
                         ))}
                       </select>
+                      <button
+                        type="button"
+                        className="ml-auto mr-1"
+                        onClick={() => deleteEmail(emailCopy.id)}
+                      >
+                        Delete email
+                      </button>
                     </div>
                     <hr />
                   </div>
