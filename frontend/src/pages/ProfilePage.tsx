@@ -3,7 +3,9 @@ import { useContext } from "react";
 import { useEffect, useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
-import { DateTime } from "luxon";
+import { parse } from "date-fns";
+import { format, toZonedTime } from "date-fns-tz";
+import moment from "moment-timezone";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
@@ -389,16 +391,24 @@ export default function ProfilePage() {
 
   function convertTimezone(datetime: string, timezone: string): string {
     const oregonTimezone = "America/Los_Angeles";
-    const oregonDateTime = DateTime.fromFormat(
-      datetime,
-      "yyyy-MM-dd HH:mm:ss",
-      {
-        zone: oregonTimezone,
-      }
+    const parsedDate = parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date());
+    const oregonDateTime = toZonedTime(parsedDate, oregonTimezone);
+    const targetDateTime = toZonedTime(oregonDateTime, timezone);
+    const formattedDate = format(
+      targetDateTime,
+      "yyyy-MM-dd 'at' HH:mm (h:mm a)",
+      { timeZone: timezone }
     );
-    const targetDateTime = oregonDateTime.setZone(timezone);
-    return targetDateTime.toISO() as string;
+    return formattedDate;
   }
+
+  const timezones = moment.tz.names().map((tz) => {
+    const offset = moment.tz(tz).format("Z");
+    return {
+      value: tz,
+      text: `(GMT${offset}) ${tz}`,
+    };
+  });
 
   return (
     <div className="text-xl ml-2 mt-1">
@@ -743,6 +753,18 @@ export default function ProfilePage() {
                           emailCopy.timezone
                         )}
                       </p>
+                      <select
+                        value={emailCopy.timezone}
+                        onChange={(e) =>
+                          updateEmail(emailCopy.id, "timezone", e.target.value)
+                        }
+                      >
+                        {timezones.map((timezone) => (
+                          <option key={timezone.value} value={timezone.value}>
+                            {timezone.text}
+                          </option>
+                        ))}
+                      </select>
                       <button
                         type="button"
                         className="ml-auto mr-1"
