@@ -432,7 +432,6 @@ def add_email_data():
                 interval = data.get('interval')
                 timezone = data.get('timezone')
                 last_checkin = datetime.now(pytz.timezone(timezone))
-                return {"error": f"{subject} {body} {recipients} {send_time} {code} {interval} {timezone} {last_checkin} {datetime.now(pytz.timezone(timezone))}"}
                 if send_time:
                     if not is_valid_send_time(send_time):
                         return {"error": "Invalid send time"}
@@ -555,6 +554,7 @@ def parse_interval(email):
         minutes=kwargs['minutes']
     )
     formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_datetime += " " + duration_str + " " + last_checkin
     return formatted_datetime
 
 def send_email(email_id):
