@@ -393,10 +393,10 @@ export default function ProfilePage() {
       zone: oregonTimezone,
     });
     const targetDateTime = oregonDateTime.setZone(timezone);
-    return targetDateTime.toISO() as string;
     console.log(targetDateTime.toISO());
     console.log(datetime);
     console.log(timezone);
+    return targetDateTime.toISO() as string;
   }
 
   return (
