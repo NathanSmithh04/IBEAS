@@ -397,9 +397,6 @@ export default function ProfilePage() {
       }
     );
     const targetDateTime = oregonDateTime.setZone(timezone);
-    console.log(targetDateTime.toISO());
-    console.log(datetime);
-    console.log(timezone);
     return targetDateTime.toISO() as string;
   }
 
