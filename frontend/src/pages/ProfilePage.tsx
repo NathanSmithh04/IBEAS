@@ -53,6 +53,12 @@ export default function ProfilePage() {
   const [checkboxes, setCheckboxes] = useState<{ [key: string]: boolean }>({
     "new-email-checkbox": false,
   });
+  const [userFirstName, setUserFirstName] = useState<string>(
+    localStorage.getItem("userFirstName") || ""
+  );
+  const [userLastName, setUserLastName] = useState<string>(
+    localStorage.getItem("userLastName") || ""
+  );
 
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -176,6 +182,8 @@ export default function ProfilePage() {
           } else {
             localStorage.setItem("userFirstName", data.first_name);
             localStorage.setItem("userLastName", data.last_name);
+            setUserFirstName(data.first_name);
+            setUserLastName(data.last_name);
             alert("Name changed successfully.");
           }
         }
@@ -278,9 +286,8 @@ export default function ProfilePage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(newEmail),
+          body: JSON.stringify({ ...newEmail, userTimezone }),
         });
-
         if (response.ok) {
           var data = await response.json();
           if (data.error) {
@@ -392,8 +399,8 @@ export default function ProfilePage() {
   return (
     <div className="text-xl ml-2 mt-1">
       <p>
-        Hello,&nbsp;{localStorage.getItem("userFirstName")}&nbsp;
-        {localStorage.getItem("userLastName")}!
+        Hello,&nbsp;{userFirstName}&nbsp;
+        {userLastName}!
         <button type="button" className="ml-1.5" onClick={changeName}>
           Edit
         </button>

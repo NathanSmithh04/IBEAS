@@ -377,6 +377,9 @@ def change_email_data():
                             elif key == 'recipients':
                                 if not is_valid_recipients(value):
                                     return {"error": "Invalid recipients in one or more emails"}
+                            elif key == 'timezone':
+                                if not is_valid_timezone(value):
+                                    return {"error": "Invalid timezone in one or more emails"}
                             if (key == 'subject' and len(value) > EMAILS_SUBJECT_MAX_LENGTH) or (key == 'body' and len(value) > EMAILS_BODY_MAX_LENGTH) or (key == 'recipients' and len(value) > EMAILS_RECIPIENTS_MAX_LENGTH) or (key == 'send_time' and len(value) > EMAILS_SEND_TIME_MAX_LENGTH) or (key == 'interval' and len(value) > EMAILS_INTERVAL_MAX_LENGTH) or (key == 'timezone' and len(value) > EMAILS_TIMEZONE_MAX_LENGTH):
                                 return {"error": "One or more values are too long"}
                     return_info = []
@@ -433,6 +436,10 @@ def add_email_data():
                         return {"error": "Invalid send time"}
                 if not is_valid_interval(interval):
                     return {"error": "Invalid interval"}
+                if not is_valid_recipients(recipients):
+                    return {"error": "Invalid recipients"}
+                if not is_valid_timezone(timezone):
+                    return {"error": "Invalid timezone"}
                 if subject and body and recipients and code and interval and timezone:
                     if len(subject) <= EMAILS_SUBJECT_MAX_LENGTH and len(body) <= EMAILS_BODY_MAX_LENGTH and len(recipients) <= EMAILS_RECIPIENTS_MAX_LENGTH and len(str(send_time)) <= EMAILS_SEND_TIME_MAX_LENGTH and len(code) <= EMAILS_CODE_MAX_LENGTH and len(interval) <= EMAILS_INTERVAL_MAX_LENGTH and len(timezone) <= EMAILS_TIMEZONE_MAX_LENGTH:
                         email = Emails(user.id, subject, body, recipients, send_time, code, interval, last_checkin, timezone)
@@ -474,6 +481,9 @@ def delete_email_data():
 def check_connection():
     return {"success": "Connection successful"}
 
+def is_valid_timezone(timezone):
+    return timezone in pytz.all_timezones
+
 def is_valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
@@ -502,6 +512,8 @@ def is_valid_interval(interval):
             return False
         types.add(type_)
     return cleaned_interval == ''.join(next(m for m in match if m) for match in matches)
+
+
 
 def is_valid_recipients(recipients):
     emails = [email.strip() for email in recipients.split(',')]
