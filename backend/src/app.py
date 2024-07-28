@@ -22,6 +22,7 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+server_timezone = os.getenv('SERVER_TIMEZONE')
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 oauth = OAuth(app)
@@ -524,10 +525,13 @@ def is_valid_recipients(recipients):
 def parse_interval(email):
     duration_str = email.interval
     last_checkin = email.last_checkin
-    if is_valid_interval(duration_str):
-        pass
-    else:
+    client_timezone = email.timezone
+    if not is_valid_interval(duration_str):
         return None
+    server_tz = pytz.timezone(server_timezone)
+    client_tz = pytz.timezone(client_timezone)
+    last_checkin = server_tz.localize(last_checkin)
+    last_checkin_client_tz = last_checkin.astimezone(client_tz)
     parts = re.findall(r'(\d+)([YyMmDdHh])', duration_str)
     kwargs = {
         'years': 0,
@@ -548,14 +552,15 @@ def parse_interval(email):
             kwargs['hours'] = num
         elif unit == 'M':
             kwargs['months'] = num
-    new_datetime = last_checkin + relativedelta(
+    new_datetime_client_tz = last_checkin_client_tz + relativedelta(
         years=kwargs['years'],
         months=kwargs['months'],
         days=kwargs['days'],
         hours=kwargs['hours'],
         minutes=kwargs['minutes']
     )
-    formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
+    new_datetime_server_tz = new_datetime_client_tz.astimezone(server_tz)
+    formatted_datetime = new_datetime_server_tz.strftime('%Y-%m-%d %H:%M:%S')
     return formatted_datetime
 
 def send_email(email_id):
