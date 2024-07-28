@@ -771,7 +771,7 @@ export default function ProfilePage() {
                         {emailCopy.timezone}
                         {emailCopy.timezone !== userTimezone && (
                           <>
-                            &nbsp;///&nbsp;
+                            &nbsp;&rarr;&nbsp;
                             {formatTime(
                               emailCopy.interval_next_send,
                               emailCopy.timezone,
