@@ -63,7 +63,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     setUserTimezone(timezone);
-  }, []);
+  });
 
   function updateEmail(emailId: number, infoType: string, info: string) {
     setEmailsCopy((currentEmails: any[]) => {
