@@ -768,13 +768,18 @@ export default function ProfilePage() {
                       <p className="ml-1">
                         Next trigger:&nbsp;
                         {formatTime(emailCopy.interval_next_send)}&nbsp;
-                        {emailCopy.timezone}&nbsp;&harr;&nbsp;
-                        {formatTime(
-                          emailCopy.interval_next_send,
-                          emailCopy.timezone,
-                          userTimezone
+                        {emailCopy.timezone}
+                        {emailCopy.timezone !== userTimezone && (
+                          <>
+                            &nbsp;///&nbsp;
+                            {formatTime(
+                              emailCopy.interval_next_send,
+                              emailCopy.timezone,
+                              userTimezone
+                            )}
+                            &nbsp;{userTimezone}
+                          </>
                         )}
-                        &nbsp;{userTimezone}
                       </p>
                     </div>
                     <div className="mb-1 form-row">
