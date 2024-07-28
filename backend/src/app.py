@@ -440,7 +440,7 @@ def add_email_data():
                 if not is_valid_recipients(recipients):
                     return {"error": "Invalid recipients"}
                 if not is_valid_timezone(timezone):
-                    return {"error": "Invalid timezone"}
+                    return {"error": "Invalid timezone" + timezone}
                 if subject and body and recipients and code and interval and timezone:
                     if len(subject) <= EMAILS_SUBJECT_MAX_LENGTH and len(body) <= EMAILS_BODY_MAX_LENGTH and len(recipients) <= EMAILS_RECIPIENTS_MAX_LENGTH and len(str(send_time)) <= EMAILS_SEND_TIME_MAX_LENGTH and len(code) <= EMAILS_CODE_MAX_LENGTH and len(interval) <= EMAILS_INTERVAL_MAX_LENGTH and len(timezone) <= EMAILS_TIMEZONE_MAX_LENGTH:
                         email = Emails(user.id, subject, body, recipients, send_time, code, interval, last_checkin, timezone)
