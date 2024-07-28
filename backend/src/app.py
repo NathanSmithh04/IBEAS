@@ -554,7 +554,10 @@ def parse_interval(email):
         minutes=kwargs['minutes']
     )
     formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
-    formatted_datetime = str(formatted_datetime) + " " + email.timezone + " " + email.interval + " " + last_checkin + " " + email.last_checkin.strftime('%Y-%m-%d %H:%M:%S')
+    print(formatted_datetime)
+    print(last_checkin)
+    print(new_datetime)
+    print(datetime.now(pytz.timezone(email.timezone)))
     return formatted_datetime
 
 def send_email(email_id):
