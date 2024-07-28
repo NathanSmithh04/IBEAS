@@ -3,8 +3,6 @@ import { useContext } from "react";
 import { useEffect, useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
-import { parse } from "date-fns";
-import { format, toZonedTime } from "date-fns-tz";
 import moment from "moment-timezone";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
