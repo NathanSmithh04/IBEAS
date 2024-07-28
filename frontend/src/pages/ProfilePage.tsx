@@ -389,26 +389,43 @@ export default function ProfilePage() {
     return true;
   }
 
-  function convertTimezone(datetime: string, timezone: string): string {
-    const oregonTimezone = "America/Los_Angeles";
-    const parsedDate = parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date());
-    const oregonDateTime = toZonedTime(parsedDate, oregonTimezone);
-    const targetDateTime = toZonedTime(oregonDateTime, timezone);
-    const formattedDate = format(
-      targetDateTime,
-      "yyyy-MM-dd 'at' HH:mm (h:mm a)",
-      { timeZone: timezone }
-    );
-    return formattedDate;
-  }
+  // function convertTimezone(datetime: string, timezone: string): string {
+  //   const targetDateTime = toZonedTime(
+  //     parse(datetime, "yyyy-MM-dd HH:mm:ss", new Date()),
+  //     timezone
+  //   );
+  //   const hours = targetDateTime.getHours();
+  //   let formattedDate;
+  //   if (hours === 1) {
+  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' 00:mm (h:mm a)", {
+  //       timeZone: timezone,
+  //     });
+  //   } else if (hours >= 13) {
+  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' HH:mm (h:mm a)", {
+  //       timeZone: timezone,
+  //     });
+  //   } else {
+  //     formattedDate = format(targetDateTime, "yyyy-MM-dd 'at' hh:mm a", {
+  //       timeZone: timezone,
+  //     });
+  //   }
+  //   return formattedDate;
+  // }
 
-  const timezones = moment.tz.names().map((tz) => {
-    const offset = moment.tz(tz).format("Z");
-    return {
-      value: tz,
-      text: `(GMT${offset}) ${tz}`,
-    };
-  });
+  // console.log(convertTimezone("2022-01-01 01:00:00", "America/New_York"));
+
+  const timezones = moment.tz
+    .names()
+    .map((tz) => {
+      const offset = moment.tz(tz).format("Z");
+      return {
+        value: tz,
+        text: `(GMT${offset}) ${tz}`,
+        offset: parseFloat(offset.replace(":", ".")),
+      };
+    })
+    .sort((a, b) => a.offset - b.offset)
+    .map(({ offset, ...rest }) => rest);
 
   return (
     <div className="text-xl ml-2 mt-1">
@@ -729,7 +746,7 @@ export default function ProfilePage() {
                         value={emailCopy.send_time}
                       />
                     </div>
-                    <div className="form-row mb-1">
+                    <div className="form-row">
                       <p className="label">Interval:</p>
                       <input
                         required
@@ -748,11 +765,18 @@ export default function ProfilePage() {
                       </p>
                       <p className="ml-1">
                         Next trigger:&nbsp;
-                        {convertTimezone(
-                          emailCopy.interval_next_send,
-                          emailCopy.timezone
-                        )}
+                        {emailCopy.interval_next_send}
                       </p>
+                      <button
+                        type="button"
+                        className="ml-auto mr-1"
+                        onClick={() => deleteEmail(emailCopy.id)}
+                      >
+                        Delete email
+                      </button>
+                    </div>
+                    <div className="mb-1 form-row">
+                      <p className="label">Timezone:</p>
                       <select
                         value={emailCopy.timezone}
                         onChange={(e) =>
@@ -765,13 +789,6 @@ export default function ProfilePage() {
                           </option>
                         ))}
                       </select>
-                      <button
-                        type="button"
-                        className="ml-auto mr-1"
-                        onClick={() => deleteEmail(emailCopy.id)}
-                      >
-                        Delete email
-                      </button>
                     </div>
                     <hr />
                   </div>
