@@ -323,7 +323,7 @@ def request_emails():
                     code = data["code"]
                     emails = Emails.query.filter_by(user_id=user.id, code=code).all()
                     if emails:
-                        return {"emails": [{"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, "interval_next_send": parse_interval(email), "timezone": timezone} for email in emails]}
+                        return {"emails": [{"id": email.id, "subject": email.subject, "body": email.body, "recipients": email.recipients, "send_time": email.send_time, "interval": email.interval, "interval_next_send": parse_interval(email), "timezone": email.timezone} for email in emails]}
                     else:
                         return {"error": "Incorrect code or no emails found"}
     return {"error": "Cannot get emails"}
