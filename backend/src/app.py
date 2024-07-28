@@ -554,7 +554,7 @@ def parse_interval(email):
         minutes=kwargs['minutes']
     )
     formatted_datetime = new_datetime.strftime('%Y-%m-%d %H:%M:%S')
-    formatted_datetime += " " + duration_str + " " + last_checkin
+    formatted_datetime = str(formatted_datetime) + " " + email.timezone + " " + email.interval
     return formatted_datetime
 
 def send_email(email_id):
