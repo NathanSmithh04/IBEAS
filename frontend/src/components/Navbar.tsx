@@ -10,7 +10,9 @@ function Navbar() {
   const [isAuthenticatedLocal, setIsAuthenticatedLocal] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
-  const [showServerWarning, setShowServerWarning] = useState(true);
+  const [showServerWarning, setShowServerWarning] = useState(
+    sessionStorage.getItem("showServerWarning") === "true"
+  );
   const [loginText, setLoginText] = useState("Log in");
 
   useEffect(() => {
