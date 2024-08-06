@@ -26,26 +26,24 @@ function Navbar() {
   });
 
   const tryLoginWithRedirect = async () => {
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("timeout")), 2000)
-    );
+    let gotResponse = false;
+    setTimeout(() => {
+      if (!gotResponse) {
+        setLoginText("Waiting for server...");
+      }
+    }, 2000);
     try {
-      const response = await Promise.race([
-        fetch(backendUrl + "/check_connection"),
-        timeout,
-      ]);
-      if (response instanceof Response && response.ok) {
+      const response = await fetch(backendUrl + "/check_connection");
+      gotResponse = true;
+      if (response.ok) {
         loginWithRedirect();
       } else {
-        prompt("Error with the backend. Please try again later.");
-        setLoginText("Log in");
+        prompt("Error connecting to the server. Please try again later.");
       }
     } catch (error) {
-      if (error === "timeout") {
-        setLoginText("Waiting for server...");
-      } else {
-        console.error(error);
-      }
+      console.error(error);
+    } finally {
+      setLoginText("Log in");
     }
   };
 
