@@ -95,7 +95,7 @@ function Navbar() {
             </>
           ) : (
             <div>
-              <button className="my-2" onClick={() => tryLoginWithRedirect()}>
+              <button className="m-2" onClick={() => tryLoginWithRedirect()}>
                 {loginText}
               </button>
             </div>
