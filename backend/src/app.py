@@ -570,6 +570,7 @@ def schedule_email_send_time(email):
         if email.send_time:
             send_time = datetime.fromisoformat(email.send_time)
             pytztimezone = pytz.timezone(email.timezone)
+            send_time = pytztimezone.localize(send_time)
             current_time = datetime.now(pytztimezone)
             if send_time > current_time:
                 scheduler.add_job(
