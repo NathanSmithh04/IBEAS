@@ -11,6 +11,7 @@ function Navbar() {
     localStorage.getItem("isAuthenticated") === "true"
   );
   const [showServerWarning, setShowServerWarning] = useState(true);
+  const [loginText, setLoginText] = useState("Log in");
 
   useEffect(() => {
     if (!isLoading) {
@@ -25,15 +26,26 @@ function Navbar() {
   });
 
   const tryLoginWithRedirect = async () => {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), 2000)
+    );
     try {
-      const response = await fetch(backendUrl + "/check_connection");
-      if (response.ok) {
+      const response = await Promise.race([
+        fetch(backendUrl + "/check_connection"),
+        timeout,
+      ]);
+      if (response instanceof Response && response.ok) {
         loginWithRedirect();
       } else {
         prompt("Error with the backend. Please try again later.");
+        setLoginText("Log in");
       }
     } catch (error) {
-      console.error(error);
+      if (error === "timeout") {
+        setLoginText("Waiting for server...");
+      } else {
+        console.error(error);
+      }
     }
   };
 
@@ -84,10 +96,7 @@ function Navbar() {
           ) : (
             <div>
               <button className="my-2" onClick={() => tryLoginWithRedirect()}>
-                Log in
-              </button>
-              <button className="m-2" onClick={() => tryLoginWithRedirect()}>
-                Sign up
+                {loginText}
               </button>
             </div>
           )}
