@@ -489,7 +489,7 @@ def is_valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
 def is_valid_send_time(send_time):
-    pattern = r'^2024-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d$'
+    pattern = r'^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d$'
     if not re.match(pattern, send_time):
         return False
     try:

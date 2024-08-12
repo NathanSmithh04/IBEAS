@@ -35,7 +35,7 @@ function Navbar() {
     let gotResponse = false;
     setTimeout(() => {
       if (!gotResponse) {
-        setLoginText("Waiting for server...");
+        setLoginText("Server is loading... Please wait ~30 seconds.");
       }
     }, 2000);
     try {
