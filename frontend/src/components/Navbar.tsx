@@ -25,6 +25,10 @@ function Navbar() {
     if (sessionStorage.getItem("showServerWarning") === "false") {
       setShowServerWarning(false);
     }
+    if (sessionStorage.getItem("showServerWarning") === null) {
+      sessionStorage.setItem("showServerWarning", "true");
+      setShowServerWarning(true);
+    }
   });
 
   const tryLoginWithRedirect = async () => {
