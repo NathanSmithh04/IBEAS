@@ -21,6 +21,7 @@ Flask-SQLAlchemy==3.1.1
 future==1.0.0
 gevent==24.2.1
 greenlet==3.0.3
+gunicorn==23.0.0
 idna==3.3
 imageio==2.21.1
 imageio-ffmpeg==0.4.7
