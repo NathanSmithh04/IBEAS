@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
+import { set } from "date-fns";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
@@ -21,6 +22,7 @@ export default function CheckinPage() {
       return;
     }
     try {
+      setCheckInText("Checking in...");
       if (token && user) {
         const response = await fetch(backendUrl + "/checkin_emails", {
           method: "POST",
@@ -35,12 +37,16 @@ export default function CheckinPage() {
           const data = await response.json();
           if (data.error) {
             alert(data.error);
+            setCheckInText("Check in");
           } else {
             setCheckInText("Checked in!");
             setTimeout(() => {
               setCheckInText("Check in");
             }, 2000);
           }
+        } else {
+          alert("Error checking in. Please try again later.");
+          setCheckInText("Check in");
         }
       }
     } catch (error) {
