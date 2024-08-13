@@ -478,6 +478,24 @@ def delete_email_data():
                         return {"success": "Email deleted"}
     return {"error": "Cannot delete email data"}
 
+@app.route('/checkin_emails', methods=['POST'])
+@token_required
+def checkin_emails():
+    token = request.headers.get('Authorization').split()[1]
+    data = request.get_json()
+    payload = check_auth(token)
+    if payload:
+        email = payload.get(EMAIL_ROUTE)
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                code = data.get('code')
+                emails = Emails.query.filter_by(user_id=user.id, code=code).all()
+                for email in emails:
+                    checkin(email)
+                return {"success": "Check in(s) successful"}
+    return {"error": "Cannot check in email(s)"}
+
 @app.route('/check_connection', methods=['GET'])
 def check_connection():
     return {"success": "Connection successful"}
@@ -649,6 +667,7 @@ def checkin(email):
     email.last_checkin = datetime.now(pytz.timezone(email.timezone))
     db.session.commit()
     reschedule_email_interval(email)
+    unschedule_email_send_time(email.id)
 
 def init_scheduler():
     scheduler.start()

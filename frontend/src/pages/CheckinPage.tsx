@@ -4,19 +4,25 @@ import { useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
 
-// const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 export default function CheckinPage() {
   const { user } = useContext(Auth0Context);
   const token = useAuthToken();
-  const API_DOMAIN = "http://127.0.0.1:5000";
   const [code, setCode] = useState<string>("");
+  const [checkInText, setCheckInText] = useState<string>("Check in");
 
   async function checkinApi() {
-    if (!code) return;
+    if (!code) {
+      setCheckInText("Please enter a code");
+      setTimeout(() => {
+        setCheckInText("Check in");
+      }, 2000);
+      return;
+    }
     try {
       if (token && user) {
-        const response = await fetch(API_DOMAIN + "/checkin", {
+        const response = await fetch(backendUrl + "/checkin_emails", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -30,11 +36,10 @@ export default function CheckinPage() {
           if (data.error) {
             alert(data.error);
           } else {
-            alert(
-              `Checked in for ${data.amount} email${
-                data.amount > 1 ? "s" : ""
-              }.`
-            );
+            setCheckInText("Checked in!");
+            setTimeout(() => {
+              setCheckInText("Check in");
+            }, 2000);
           }
         }
       }
@@ -52,7 +57,7 @@ export default function CheckinPage() {
         onChange={(e) => setCode(e.target.value)}
       />
       <button className="ml-1" onClick={checkinApi}>
-        Check in
+        {checkInText}
       </button>
     </div>
   );
