@@ -665,6 +665,7 @@ def reschedule_email_send_time(email):
 
 def checkin(email):
     email.last_checkin = datetime.now(pytz.timezone(email.timezone))
+    email.send_time = None
     db.session.commit()
     reschedule_email_interval(email)
     unschedule_email_send_time(email.id)
