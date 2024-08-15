@@ -3,7 +3,6 @@ import { useContext } from "react";
 import { useState } from "react";
 import { useAuthToken } from "../Auth0Provider";
 import "../index.css";
-import { set } from "date-fns";
 
 const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
