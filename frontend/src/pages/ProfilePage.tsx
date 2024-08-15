@@ -256,7 +256,9 @@ export default function ProfilePage() {
             for (let i = 0; i < data.emails.length; i++) {
               setCheckboxes((prevCheckboxes) => ({
                 ...prevCheckboxes,
-                [data.emails[i].id]: !data.emails[i].send_time,
+                [data.emails[i].id]:
+                  data.emails[i].send_time !== "" &&
+                  data.emails[i].send_time !== null,
               }));
             }
           }
