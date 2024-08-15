@@ -256,7 +256,7 @@ export default function ProfilePage() {
             for (let i = 0; i < data.emails.length; i++) {
               setCheckboxes((prevCheckboxes) => ({
                 ...prevCheckboxes,
-                [data.emails[i].id]: data.emails[i].send_time !== "" || null,
+                [data.emails[i].id]: !data.emails[i].send_time,
               }));
             }
           }
@@ -783,6 +783,7 @@ export default function ProfilePage() {
                       <p className="label">Timezone:</p>
                       <select
                         value={emailCopy.timezone}
+                        required
                         onChange={(e) =>
                           updateEmail(emailCopy.id, "timezone", e.target.value)
                         }
