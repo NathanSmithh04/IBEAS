@@ -158,13 +158,6 @@ export default function ProfilePage() {
     }
   }
 
-  // useEffect(() => {
-  //   setUserInfo({
-  //     first_name: localStorage.getItem("userFirstName"),
-  //     last_name: localStorage.getItem("userLastName"),
-  //   });
-  // }, [token]);
-
   async function changeNameApi(newName: string) {
     try {
       if (token && user) {
@@ -263,7 +256,7 @@ export default function ProfilePage() {
             for (let i = 0; i < data.emails.length; i++) {
               setCheckboxes((prevCheckboxes) => ({
                 ...prevCheckboxes,
-                [data.emails[i].id]: data.emails[i].send_time !== "",
+                [data.emails[i].id]: data.emails[i].send_time !== "" || null,
               }));
             }
           }
